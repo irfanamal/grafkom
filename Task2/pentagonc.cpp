@@ -1,45 +1,52 @@
-// Include standard headers
-#include <stdio.h>
-#include <stdlib.h>
-
-// Include GLEW. Always include it before gl.h and glfw3.h, since it's a bit magic.
 #include <GL/glew.h>
-
-// Include GLFW
 #include <GLFW/glfw3.h>
+#include <iostream>
 
-// // Include GLM
-// #include <glm/glm.hpp>
-// using namespace glm;
+using namespace std;
 
-#include "common/shader.hpp"
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void processInput(GLFWwindow *window);
 
-int main(){
-	// Initialise GLFW
-	glewExperimental = true; // Needed for core profile
-	if( !glfwInit() )
+//Vertex shader source
+const char *vertexShaderSource = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "layout (location = 1) in vec4 aCol;\n"
+    "out vec4 color;\n"
+    "void main()\n"
+    "{\n"
+    "	color = aCol;\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
+
+//fragment shader source
+const char *fragmentShaderSource = "#version 330 core\n"
+    "layout(location = 0) out vec4 FragColor;\n"
+    "in vec4 color;\n"
+    "void main()\n"
+    "{\n"
+    "   FragColor = color;\n"
+    "}\0";
+
+int main()
+{
+	//Configuration
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	
+	//Make a window
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Pentagon Color", NULL, NULL);
+	if (window == NULL)
 	{
-	    fprintf( stderr, "Failed to initialize GLFW\n" );
-	    getchar();
-	    return -1;
-	}
-	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // We want OpenGL 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
-
-	// Open a window and create its OpenGL context
-	GLFWwindow* window; // (In the accompanying source code, this variable is global for simplicity)
-	window = glfwCreateWindow( 800, 600, "Pentagon Color", NULL, NULL);
-	if( window == NULL ){
-	    fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
-	    getchar();
+	    std::cout << "Failed to create GLFW window" << std::endl;
 	    glfwTerminate();
 	    return -1;
 	}
-	glfwMakeContextCurrent(window); // Initialize GLEW
-	glewExperimental=true; // Needed in core profile
+	glfwMakeContextCurrent(window);
+
+	//Init glew
+	glewExperimental = true;
 	if (glewInit() != GLEW_OK) {
 	    fprintf(stderr, "Failed to initialize GLEW\n");
 	    getchar();
@@ -47,75 +54,110 @@ int main(){
 	    return -1;
 	}
 
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
+	//Rendering size
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// An array of 3 vectors which represents 3 vertices
-	static const GLfloat g_vertex_buffer_data[] = {
-	   	0.0f, 0.5f, 0.0f,
-	   	0.35f, 0.15f, 0.0f,
-	   	0.25f, -0.5f, 0.0f,
-	  
-	   	-0.25f, -0.5f, 0.0f,
-	   	-0.35f, 0.15f, 0.0f,
-	   	0.0f, 0.5f, 0.0f,
+	//Declare vertex shader
+	unsigned int vertexShader;
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
-	   	0.0f, 0.5f, 0.0f,
-	  	0.25f, -0.5f, 0.0f,
-	  	-0.25f, -0.5f, 0.0f,	
+	//compile vertex shader
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
+
+	//Declare fragment shader
+	unsigned int fragmentShader;
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+	//compile fragment shader
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
+
+	//Declare shader program
+	unsigned int shaderProgram;
+	shaderProgram = glCreateProgram();
+
+	//Link vertex and fragment shader
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+
+	//Delete vertex and fragment shader
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);  
+
+	//Vertices
+	float vertices[] = {
+		0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		0.35f, 0.15f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+		0.25f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+	
+		-0.25f, -0.5f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f,
+		-0.35f, 0.15f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+
+		0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		0.25f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+		-0.25f, -0.5f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f
 	};
 
-	// This will identify our vertex buffer
-	GLuint vertexbuffer;
-	// Generate 1 buffer, put the resulting identifier in vertexbuffer
-	glGenBuffers(1, &vertexbuffer);
-	// The following commands will talk about our 'vertexbuffer' buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	//Declare VAO
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);   
 
-	// Ensure we can capture the escape key being pressed below
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	//Declare VBO
+	unsigned int VBO;
+	glGenBuffers(1, &VBO);
 
-	// Create and compile our GLSL program from the shaders
-	GLuint programID = LoadShaders( "SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader" );
+	//Bind VAO and VBO to buffer
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	do{
-	    // Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
-	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//Copy vertices to buffer
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	    // Draw nothing, see you in tutorial 2 !
-	    // 1st attribute buffer : vertices
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glVertexAttribPointer(
-			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		   	3,                  // size
-		   	GL_FLOAT,           // type
-		   	GL_FALSE,           // normalized?
-		   	0,                  // stride
-		   	(void*)0            // array buffer offset
-		);
-		// Use our shader
-		glUseProgram(programID);
-		// Draw the triangle !
-		glDrawArrays(GL_TRIANGLES, 0, 9); // Starting from vertex 0; 3 vertices total -> 1 triangle
-		glDisableVertexAttribArray(0);
+	//Configure buffer reading
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)12);
+	glEnableVertexAttribArray(1);
 
-	    // Swap buffers
+	//Main loop
+	while(!glfwWindowShouldClose(window))
+	{
+		//Check input
+		processInput(window);
+
+		//Clear Screen
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		//Draw
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 9);
+
+		//Check and call events and swap buffers
 	    glfwSwapBuffers(window);
-	    glfwPollEvents();
+	    glfwPollEvents();    
+	}
 
-	} // Check if the ESC key was pressed or the window was closed
-	while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-	       glfwWindowShouldClose(window) == 0 );
+	//Dealocate
+	glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
 
-	// Cleanup VBO
-	glDeleteBuffers(1, &vertexbuffer);
-	glDeleteVertexArrays(1, &VertexArrayID);
-	glDeleteProgram(programID);
-
-	// Close OpenGL window and terminate GLFW
+    //Terminate
 	glfwTerminate();
+    return 0;
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+} 
+
+void processInput(GLFWwindow *window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
