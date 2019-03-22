@@ -31,7 +31,7 @@ int main(){
 
 	// Open a window and create its OpenGL context
 	GLFWwindow* window; // (In the accompanying source code, this variable is global for simplicity)
-	window = glfwCreateWindow( 1200, 600, "Pentagon Color", NULL, NULL);
+	window = glfwCreateWindow( 800, 600, "Pentagon Color", NULL, NULL);
 	if( window == NULL ){
 	    fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
 	    getchar();
@@ -53,9 +53,17 @@ int main(){
 
 	// An array of 3 vectors which represents 3 vertices
 	static const GLfloat g_vertex_buffer_data[] = {
-	   	-1.0f, -1.0f, 0.0f,
-	   	1.0f, -1.0f, 0.0f,
-	   	0.0f,  1.0f, 0.0f,
+	   	0.0f, 0.5f, 0.0f,
+	   	0.35f, 0.15f, 0.0f,
+	   	0.25f, -0.5f, 0.0f,
+	  
+	   	-0.25f, -0.5f, 0.0f,
+	   	-0.35f, 0.15f, 0.0f,
+	   	0.0f, 0.5f, 0.0f,
+
+	   	0.0f, 0.5f, 0.0f,
+	  	0.25f, -0.5f, 0.0f,
+	  	-0.25f, -0.5f, 0.0f,	
 	};
 
 	// This will identify our vertex buffer
@@ -92,7 +100,7 @@ int main(){
 		// Use our shader
 		glUseProgram(programID);
 		// Draw the triangle !
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		glDrawArrays(GL_TRIANGLES, 0, 9); // Starting from vertex 0; 3 vertices total -> 1 triangle
 		glDisableVertexAttribArray(0);
 
 	    // Swap buffers
