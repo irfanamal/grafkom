@@ -1,1 +1,1 @@
-g++ pentagonc.cpp common/shader.cpp -o main -lglfw3 -lGL -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread -lGLEW
+g++ pentagonc.cpp -o main -lglfw3 -lGL -lm -lXrandr -lXi -lX11 -lXxf86vm -lpthread -lGLEW
