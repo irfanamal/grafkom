@@ -1,0 +1,3 @@
+http://web.eecs.umich.edu/~sugih/courses/eecs487/glfw-howto/
+
+note: ganti rehash jadi hash -r
