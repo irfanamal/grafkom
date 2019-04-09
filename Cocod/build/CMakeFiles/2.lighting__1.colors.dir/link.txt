@@ -1,0 +1,1 @@
+/usr/bin/c++  -std=c++11 -g -Wall  -rdynamic CMakeFiles/2.lighting__1.colors.dir/src/2.lighting/1.colors/colors.cpp.o  -o bin/2.lighting/2.lighting__1.colors  -L/home/irfan/LearnOpenGL/lib -Wl,-rpath,/home/irfan/LearnOpenGL/lib /usr/local/lib/libglfw3.a -lX11 -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor -lGL -ldl -lpthread -lassimp libSTB_IMAGE.a libGLAD.a  -ldl
