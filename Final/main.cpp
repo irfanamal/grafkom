@@ -46,7 +46,7 @@ GLint nml = 0, day = 1;
 
 GLfloat xt = 0.0, yt = 0.0, zt = 0.0, xw = 0.0;
 GLfloat xs = 1.0, ys = 1.0, zs = 1.0;
-GLfloat xangle = 0.0, yangle = 0.0, zangle = 0.0, angle = 0.0;
+GLfloat xangle = 0.0, yangle = 180.0, zangle = 0.0, angle = 0.0;
 
 GLfloat r = 0, g = 0, b = 1;
 GLint light = 1;
@@ -346,13 +346,13 @@ GLvoid DrawGLScene()
       glEnd();
     }
 
-    glColor3f(1.0, .75, 0.0);
-    glPointSize(30.0);
+    // glColor3f(1.0, .75, 0.0);
+    // glPointSize(30.0);
     // glBegin(GL_POINTS);
     // glVertex3f(0.2, 0.3, 0.3);
     // glVertex3f(0.2, 0.3, 0.7);
     // glEnd();
-    glPointSize(200.0);
+    // glPointSize(200.0);
 
     glBegin(GL_QUADS); /* OBJECT MODULE*/
 
@@ -575,6 +575,7 @@ GLvoid DrawGLScene()
     // glVertex3f(1.7, 0.85, 0.2); //quad back window
     // glVertex3f(1.8, 0.5, 0.2);
     // glVertex3f(1.8, 0.5, 0.8);
+
     glPopMatrix();
   }
   glEnd();
