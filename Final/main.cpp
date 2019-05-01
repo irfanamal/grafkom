@@ -7,9 +7,11 @@
 
 #define ESCAPE 27
 #define MAX_PARTICLES 2000
+#define SMOKE_PARTICLES 30
 float slowdown = 1.0;
 float velocity = 0.8;
 float hailSize = 0.012;
+float zoom = -40.0;
 
 typedef struct
 {
@@ -31,7 +33,9 @@ typedef struct
   float gravity;
 } particles;
 
-particles par_sys[MAX_PARTICLES];
+particles par_sys[1000*MAX_PARTICLES];
+particles par_sys_smoke[MAX_PARTICLES];
+
 
 GLint window;
 GLint window2;
@@ -80,7 +84,7 @@ GLvoid Transform(GLfloat Width, GLfloat Height)
   glViewport(0, 0, Width, Height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(45.0, Width / Height,0.1, 100.0);
+  gluPerspective(45.0, Width / Height, 0.1, 100.0);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -100,12 +104,28 @@ void initParticles(int i)
 
   par_sys[i].vel = velocity;
   par_sys[i].gravity = 0.8; //-0.8;
+
+  par_sys_smoke[i].alive = true;
+  par_sys_smoke[i].life = 1.0;
+  par_sys_smoke[i].fade = float(rand() % 100) / 1000.0f + 0.003f;
+
+  par_sys_smoke[i].xpos = 1.65;
+  par_sys_smoke[i].ypos = 0.2;
+  par_sys_smoke[i].zpos = 0.38;
+
+  par_sys_smoke[i].red = 0.8;
+  par_sys_smoke[i].green = 0.8;
+  par_sys_smoke[i].blue = 0.8;
+
+  par_sys_smoke[i].vel = 0.9;
+  par_sys_smoke[i].gravity = 0.4; //-0.8;
+
 }
 
 void drawRain()
 {
   float x, y, z;
-  for (int loop = 0; loop < MAX_PARTICLES; loop = loop + 2)
+  for (int loop = 0; loop < 100*MAX_PARTICLES; loop = loop + 2)
   {
     if (par_sys[loop].alive == true)
     {
@@ -135,6 +155,53 @@ void drawRain()
       //Revive
       if (par_sys[loop].life < 0.0)
       {
+        initParticles(loop);
+      }
+    }
+  }
+}
+
+
+
+void drawSmoke() {
+  float x, y, z;
+  float slowdown = 5.0;
+  for (int loop = 0; loop < MAX_PARTICLES/2; loop=loop+2) {
+    if (par_sys_smoke[loop].alive == true) {
+      x = par_sys_smoke[loop].xpos;
+      y = par_sys_smoke[loop].ypos;
+      z = par_sys_smoke[loop].zpos;
+
+      // Draw particles
+      if(x >1.85) {
+        glColor3f(0.2, 0.2, 0.2);
+        glPushMatrix();
+        glTranslatef(x, y, z);
+        glutSolidSphere(0.025, 16, 16);
+        glPopMatrix();
+      }
+
+      // Update values
+      //Move
+      par_sys_smoke[loop].xpos += par_sys_smoke[loop].vel / (slowdown*1000);
+      par_sys_smoke[loop].vel += par_sys_smoke[loop].gravity;
+      // Decay
+      par_sys_smoke[loop].life -= par_sys_smoke[loop].fade;
+
+      // if (par_sys_smoke[loop].ypos <= -10) {
+      //   int zi = z - zoom + 10;F
+      //   int xi = x + 10;
+      //   ground_colors[zi][xi][0] = 1.0;
+      //   ground_colors[zi][xi][2] = 1.0;
+      //   ground_colors[zi][xi][3] += 1.0;
+      //   if (ground_colors[zi][xi][3] > 1.0) {
+      //     ground_points[xi][zi][1] += 0.1;
+      //   }
+      //   par_sys_smoke[loop].life = -1.0;
+      // }
+
+      //Revive
+      if (par_sys_smoke[loop].life < 0.0) {
         initParticles(loop);
       }
     }
@@ -237,6 +304,7 @@ GLvoid DrawGLScene()
     glRotatef(zangle, 0.0, 0.0, 1.0);
     glTranslatef(xt, yt, zt);
     drawRain();
+    drawSmoke();
     glScalef(xs, ys, zs);
     glEnable(GL_COLOR_MATERIAL);
 
@@ -280,10 +348,10 @@ GLvoid DrawGLScene()
 
     glColor3f(1.0, .75, 0.0);
     glPointSize(30.0);
-    glBegin(GL_POINTS);
-    glVertex3f(0.2, 0.3, 0.3);
-    glVertex3f(0.2, 0.3, 0.7);
-    glEnd();
+    // glBegin(GL_POINTS);
+    // glVertex3f(0.2, 0.3, 0.3);
+    // glVertex3f(0.2, 0.3, 0.7);
+    // glEnd();
     glPointSize(200.0);
 
     glBegin(GL_QUADS); /* OBJECT MODULE*/
@@ -337,7 +405,8 @@ GLvoid DrawGLScene()
     glVertex3f(0.1875f,  0.1667f, -0.5f);
     glVertex3f(0.8125f,  0.1667f, -0.5f);
     glVertex3f(0.8125f,  0.1667f,  0.5f);
-    glVertex3f(0.1875f,  0.1667f,  0.5f);    
+    glVertex3f(0.1875f,  0.1667f,  0.5f);
+
     /* top of cube*/
     //************************FRONT BODY****************************************
     // glColor3f(0, 0, 0);
@@ -414,10 +483,20 @@ GLvoid DrawGLScene()
     // glVertex3f(1.8, 0.2, 0.8);
 
     // /* back of cube.*/
+    // // glVertex3f(0.6, 0.5, 0.2);
+    // // glVertex3f(0.6, 0.2, 0.2);
+    // // glVertex3f(1.8, 0.2, 0.2);
+    // // glVertex3f(1.8, 0.5, 0.2);
+
+    // glTexCoord2f(0.6, 0.5);
     // glVertex3f(0.6, 0.5, 0.2);
+    // glTexCoord2f(0.6, 0.2);
     // glVertex3f(0.6, 0.2, 0.2);
+    // glTexCoord2f(1.8, 0.2);
     // glVertex3f(1.8, 0.2, 0.2);
+    // glTexCoord2f(1.8, 0.5);
     // glVertex3f(1.8, 0.5, 0.2);
+
 
     // //*********************ENTER WINDOW**********************************
     // glColor3f(0.3, 0.3, 0.3);
@@ -549,61 +628,62 @@ GLvoid DrawGLScene()
   // glVertex3f(1.7, 0.5, 0.8);
 
   // glEnd();
-  glFlush();
+  // glFlush();
   //********************WHEEL
-  // glPushMatrix();
-  // glColor3f(0.8,0.8,0.8);
-  // glTranslatef(1.65,0.2,0.38);
-  // glRotatef(90.0,0,1,0);
-  // gluCylinder(t,0.02,0.03,.25,10,10);
-  // glPopMatrix();
+  //Ignition
+  glPushMatrix();
+  glColor3f(0.8,0.8,0.8);
+  glTranslatef(1.65,0.2,0.38);
+  glRotatef(90.0,0,1,0);
+  gluCylinder(t,0.02,0.03,.25,10,10);
+  glPopMatrix();
 
-  // glColor3f(0.7, 0.7, 0.7);
-  // glPushMatrix();
-  // glBegin(GL_LINE_STRIP);
-  // for (theta = 0; theta < 360; theta = theta + 40)
-  // {
-  //   glVertex3f(0.6, 0.2, 0.72);
-  //   glVertex3f(0.6 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.72);
-  // }
-  // glEnd();
+  glColor3f(0.7, 0.7, 0.7);
+  glPushMatrix();
+  glBegin(GL_LINE_STRIP);
+  for (theta = 0; theta < 360; theta = theta + 40)
+  {
+    glVertex3f(0.6, 0.2, 0.72);
+    glVertex3f(0.6 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.72);
+  }
+  glEnd();
 
-  // glBegin(GL_LINE_STRIP);
-  // for (theta = 0; theta < 360; theta = theta + 40)
-  // {
-  //   glVertex3f(0.6, 0.2, 0.28);
-  //   glVertex3f(0.6 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.28);
-  // }
-  // glEnd();
+  glBegin(GL_LINE_STRIP);
+  for (theta = 0; theta < 360; theta = theta + 40)
+  {
+    glVertex3f(0.6, 0.2, 0.28);
+    glVertex3f(0.6 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.28);
+  }
+  glEnd();
 
-  // glBegin(GL_LINE_STRIP);
-  // for (theta = 0; theta < 360; theta = theta + 40)
-  // {
-  //   glVertex3f(1.7, 0.2, 0.28);
-  //   glVertex3f(1.7 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.28);
-  // }
-  // glEnd();
+  glBegin(GL_LINE_STRIP);
+  for (theta = 0; theta < 360; theta = theta + 40)
+  {
+    glVertex3f(1.7, 0.2, 0.28);
+    glVertex3f(1.7 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.28);
+  }
+  glEnd();
 
-  // glBegin(GL_LINE_STRIP);
-  // for (theta = 0; theta < 360; theta = theta + 40)
-  // {
-  //   glVertex3f(1.7, 0.2, 0.62);
-  //   glVertex3f(1.7 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.62);
-  // }
-  // glEnd();
-  // glTranslatef(0.6, 0.2, 0.7);
-  // glColor3f(0, 0, 0);
-  // glutSolidTorus(0.05, 0.12, 10, 25);
+  glBegin(GL_LINE_STRIP);
+  for (theta = 0; theta < 360; theta = theta + 40)
+  {
+    glVertex3f(1.7, 0.2, 0.62);
+    glVertex3f(1.7 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.62);
+  }
+  glEnd();
+  glTranslatef(0.6, 0.2, 0.7);
+  glColor3f(0, 0, 0);
+  glutSolidTorus(0.05, 0.12, 10, 25);
 
-  // glTranslatef(0, 0, -0.4);
-  // glutSolidTorus(0.05, 0.12, 10, 25);
+  glTranslatef(0, 0, -0.4);
+  glutSolidTorus(0.05, 0.12, 10, 25);
 
-  // glTranslatef(1.1, 0, 0);
-  // glutSolidTorus(0.05, 0.12, 10, 25);
+  glTranslatef(1.1, 0, 0);
+  glutSolidTorus(0.05, 0.12, 10, 25);
 
-  // glTranslatef(0, 0, 0.4);
-  // glutSolidTorus(0.05, 0.12, 10, 25);
-  // glPopMatrix();
+  glTranslatef(0, 0, 0.4);
+  glutSolidTorus(0.05, 0.12, 10, 25);
+  glPopMatrix();
   //*************************************************************
 
   glPopMatrix();
