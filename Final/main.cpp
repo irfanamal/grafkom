@@ -46,7 +46,7 @@ GLint nml = 0, day = 1;
 
 GLfloat xt = 0.0, yt = 0.0, zt = 0.0, xw = 0.0;
 GLfloat xs = 1.0, ys = 1.0, zs = 1.0;
-GLfloat xangle = 0.0, yangle = 180.0, zangle = 0.0, angle = 0.0;
+GLfloat xangle = 0.0, yangle = 0.0, zangle = 0.0, angle = 0.0;
 
 GLfloat r = 0, g = 0, b = 1;
 GLint light = 1;
@@ -353,7 +353,8 @@ GLvoid DrawGLScene()
     // glVertex3f(0.2, 0.3, 0.7);
     // glEnd();
     // glPointSize(200.0);
-
+    glRotatef(180.0, 0.0, 1.0, 0.0);
+    glTranslatef(-1.1, 0.4, 0.0);
     glBegin(GL_QUADS); /* OBJECT MODULE*/
 
     glColor3f(1, 1, 1);
@@ -632,59 +633,59 @@ GLvoid DrawGLScene()
   // glFlush();
   //********************WHEEL
   //Ignition
-  glPushMatrix();
-  glColor3f(0.8,0.8,0.8);
-  glTranslatef(1.65,0.2,0.38);
-  glRotatef(90.0,0,1,0);
-  gluCylinder(t,0.02,0.03,.25,10,10);
-  glPopMatrix();
+  // glPushMatrix();
+  // glColor3f(0.8,0.8,0.8);
+  // glTranslatef(1.65,0.2,0.38);
+  // glRotatef(90.0,0,1,0);
+  // gluCylinder(t,0.02,0.03,.25,10,10);
+  // glPopMatrix();
 
-  glColor3f(0.7, 0.7, 0.7);
-  glPushMatrix();
-  glBegin(GL_LINE_STRIP);
-  for (theta = 0; theta < 360; theta = theta + 40)
-  {
-    glVertex3f(0.6, 0.2, 0.72);
-    glVertex3f(0.6 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.72);
-  }
-  glEnd();
+  // glColor3f(0.7, 0.7, 0.7);
+  // glPushMatrix();
+  // glBegin(GL_LINE_STRIP);
+  // for (theta = 0; theta < 360; theta = theta + 40)
+  // {
+  //   glVertex3f(0.6, 0.2, 0.72);
+  //   glVertex3f(0.6 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.72);
+  // }
+  // glEnd();
 
-  glBegin(GL_LINE_STRIP);
-  for (theta = 0; theta < 360; theta = theta + 40)
-  {
-    glVertex3f(0.6, 0.2, 0.28);
-    glVertex3f(0.6 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.28);
-  }
-  glEnd();
+  // glBegin(GL_LINE_STRIP);
+  // for (theta = 0; theta < 360; theta = theta + 40)
+  // {
+  //   glVertex3f(0.6, 0.2, 0.28);
+  //   glVertex3f(0.6 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.28);
+  // }
+  // glEnd();
 
-  glBegin(GL_LINE_STRIP);
-  for (theta = 0; theta < 360; theta = theta + 40)
-  {
-    glVertex3f(1.7, 0.2, 0.28);
-    glVertex3f(1.7 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.28);
-  }
-  glEnd();
+  // glBegin(GL_LINE_STRIP);
+  // for (theta = 0; theta < 360; theta = theta + 40)
+  // {
+  //   glVertex3f(1.7, 0.2, 0.28);
+  //   glVertex3f(1.7 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.28);
+  // }
+  // glEnd();
 
-  glBegin(GL_LINE_STRIP);
-  for (theta = 0; theta < 360; theta = theta + 40)
-  {
-    glVertex3f(1.7, 0.2, 0.62);
-    glVertex3f(1.7 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.62);
-  }
-  glEnd();
-  glTranslatef(0.6, 0.2, 0.7);
-  glColor3f(0, 0, 0);
-  glutSolidTorus(0.05, 0.12, 10, 25);
+  // glBegin(GL_LINE_STRIP);
+  // for (theta = 0; theta < 360; theta = theta + 40)
+  // {
+  //   glVertex3f(1.7, 0.2, 0.62);
+  //   glVertex3f(1.7 + (0.08 * (cos(((theta + angle) * 3.14) / 180))), 0.2 + (0.08 * (sin(((theta + angle) * 3.14) / 180))), 0.62);
+  // }
+  // glEnd();
+  // glTranslatef(0.6, 0.2, 0.7);
+  // glColor3f(0, 0, 0);
+  // glutSolidTorus(0.05, 0.12, 10, 25);
 
-  glTranslatef(0, 0, -0.4);
-  glutSolidTorus(0.05, 0.12, 10, 25);
+  // glTranslatef(0, 0, -0.4);
+  // glutSolidTorus(0.05, 0.12, 10, 25);
 
-  glTranslatef(1.1, 0, 0);
-  glutSolidTorus(0.05, 0.12, 10, 25);
+  // glTranslatef(1.1, 0, 0);
+  // glutSolidTorus(0.05, 0.12, 10, 25);
 
-  glTranslatef(0, 0, 0.4);
-  glutSolidTorus(0.05, 0.12, 10, 25);
-  glPopMatrix();
+  // glTranslatef(0, 0, 0.4);
+  // glutSolidTorus(0.05, 0.12, 10, 25);
+  // glPopMatrix();
   //*************************************************************
 
   glPopMatrix();
